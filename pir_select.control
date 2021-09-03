@@ -1,0 +1,5 @@
+# sealpir_select extension
+comment = 'Function to perform PIR slection.'
+default_version = '1.0'
+relocatable = true
+module_pathname = '$libdir/pir_select'
