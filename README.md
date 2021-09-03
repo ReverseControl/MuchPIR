@@ -1,8 +1,8 @@
 # MuchPir
 
-This is a protype implementation of Private Information Retrieval using Homomorphic Encryption implemented as C/C++ Aggregate extension to Postgres.
+This is a protype implementation of Private Information Retrieval using Homomorphic Encryption implemented as a C/C++ Aggregate extension to Postgres.
 
-This version is one of my early versions and its performance is severely lacking. Nonetheless, I think it is good enough implementation for
+This version is one of my early versions and its performance is severely lacking. Nonetheless, I think it is good a enough implementation for
 folks who want to experiment with PIR on Postgres and have a working C/C++ extension.
 
 
