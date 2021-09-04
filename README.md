@@ -1,4 +1,4 @@
-# MuchPir
+# MuchPIR
 
 This is a protype implementation of Private Information Retrieval using Homomorphic Encryption implemented as a C/C++ Aggregate extension to Postgres.
 
