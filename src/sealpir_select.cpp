@@ -33,16 +33,20 @@ extern "C" { // C Headers must be inside exter "C" { } block.
 #define PARAMETER_BYTES           ( 1032ULL )
 #define STATE_T_SIZE              (  8 + PARAMETER_BYTES +  ( 8 + CIPHER_SIZE2_BYTES)*(POLY_DEGREE+1)  ) 
 
+
+/** Store serialized cipher data along with the size in bytes of said serialization */
 typedef struct cipher_t{
     uint64_t size;
     uint8_t data[ CIPHER_SIZE2_BYTES ];
 } cipher_t;
 
+/** Store serialized SEAL parameter object along with the size in bytes of said serialization */
 typedef struct param_t{
     uint64_t size;
     uint8_t data[ PARAMETER_BYTES ];
 } param_t;
 
+/** Store the state between aggregate function calls by postgres inside this structure.  */ 
 typedef struct state_t {
     uint64_t row_idx;
     param_t    param;
@@ -56,10 +60,12 @@ using namespace seal;
 //////////////////////
 //    Utilities    //
 /////////////////////
-typedef std::vector<std::vector<seal::Ciphertext>> PirQuery;
-typedef std::vector<seal::Ciphertext> PirReply;
 
-
+/*!
+ * \brief Embed string into a polynomial one byte per polynomial coefficient.
+ * @param[in] data String containing raw data.
+ * @param[out] Polynomial string encoding string data in the coefficients as hexadecimal values.
+ */
 string string_to_hex_poly( string data ){  //Len does NOT include NULL terminator
     if( data.size() == 0) return "00";
     string table( "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff");
@@ -77,8 +83,14 @@ string string_to_hex_poly( string data ){  //Len does NOT include NULL terminato
     return result;
 }
 
-
-inline void multiply_power_of_X(const Ciphertext &encrypted, Ciphertext &destination, size_t index, seal::EncryptionParameters &params ) { 
+/*! 
+ * \brief Multiply polynomial encrypted by x^index and store it in destination. 
+ * @param[in]    encrypted Encrypted data in a ring polynomial.
+ * @param[in]        index Power of the monomial the encrypted polynomial is multiplied by.
+ * @param[out]      params Parameters of the ring polynomial where the operations take place.
+ * @param[out] destination Store final result here.
+ */
+void multiply_power_of_X(const Ciphertext &encrypted, Ciphertext &destination, size_t index, seal::EncryptionParameters &params ) { 
 
     auto encrypted_count = encrypted.size();
     destination = encrypted;
@@ -90,6 +102,14 @@ inline void multiply_power_of_X(const Ciphertext &encrypted, Ciphertext &destina
     }   
 }
 
+/*! 
+ * \brief Hypercube expansion along one dimension. 
+ * @param[in]    encrypted Encrypted data in a ring polynomial.
+ * @param[in]            m The number of coefficients that will be extracted as constant terms from first argument (encrypted).
+ * @param[in]       galkey Galoi Keys needed to perform hypercube expansion.
+ * @param[in]       params Parameters of the ring polynomial where the operations take place. 
+ * @param[out]      return Vector containing polynomials whose constant term is the coeeficient of the n-th term of the first argument (encrypted).
+ */
 inline vector<Ciphertext> expand_query(const Ciphertext &encrypted, uint32_t m, GaloisKeys &galkey, seal::EncryptionParameters &params ){
 
     auto context = SEALContext::Create(params);
@@ -157,6 +177,12 @@ inline vector<Ciphertext> expand_query(const Ciphertext &encrypted, uint32_t m, 
     return newVec;
 }
 
+/*!
+ *  \brief Generate Galois keys needed to perform the hypercube expansion. 
+ *  @param[in]         N Encrypted data in a ring polynomial.
+ *  @param[in]    keygen SEAL object needed to generate the keys, key factory.
+ *  @param[out]   return All the galois keys needed to perform hypercube expansion, about log2(N) keys.
+ */
 GaloisKeys generate_galois_keys( const int N, KeyGenerator *keygen ) { 
     vector< uint32_t > galois_elts;
     const int logN = seal::util::get_power_of_two(N);
@@ -169,8 +195,18 @@ GaloisKeys generate_galois_keys( const int N, KeyGenerator *keygen ) {
 }
 
 extern "C" { // PostgreSQL functions be inside extern "C" { } block.
+    /*!
+     *  \brief Declared C/C++ extension name to postgres. 
+     */
 	PG_FUNCTION_INFO_V1( pir_select_internal );
 
+    /*!
+     *  \brief Perform the encrypted query. 
+     *  @param[in]     state Stores the transition state between postgress calls to the aggregate function.
+     *  @param[in]     query Hypercube embedding along with galois keys and SEAL parameters for encryption.
+     *  @param[in]  row_data The row data given on a given postgres call to this aggregate function.
+     *  @param[out]    state Return the updated transition state.
+     */
 	Datum pir_select_internal(PG_FUNCTION_ARGS){
 	    //Get the Postgres C-Extension Parameters
         bytea     *state    = PG_GETARG_BYTEA_P(0);
@@ -321,7 +357,18 @@ extern "C" { // PostgreSQL functions be inside extern "C" { } block.
         }
 	};
 
+    /*!
+     *  \brief Declared C/C++ aggregate extension name for the final call to postgres. 
+     */
 	PG_FUNCTION_INFO_V1( pir_final );
+
+    /*!
+     *  \brief Final function call for the query search. This implementation does not need it, but
+     *         it will be needed to parallelize this aggregate extension and speed up processing. 
+     *  @param[in]     state Stores the transition state between postgress calls to the aggregate function.
+     *  @param[in]     query Hypercube embedding along with galois keys and SEAL parameters for encryption.
+     *  @param[out]    state Return the updated and final transition state, aka query result.
+     */
 	Datum pir_final(PG_FUNCTION_ARGS){
         //Function to extract the accumulated value from the state
         //and return that as the answer
