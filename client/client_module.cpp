@@ -13,7 +13,14 @@ using namespace seal;
 using namespace seal::util;
 #define DB_SIZE (4096)
 
-inline void multiply_power_of_X(const Ciphertext &encrypted, Ciphertext &destination, size_t index, seal::EncryptionParameters &params ) {
+/*! 
+ * \brief Embed string into a polynomial one character per polynomial coefficient.
+ * @param[in]    encrypted Encrypted data in a ring polynomial.
+ * @param[in]        index Power of the monomial the encrypted polynomial is multiplied by.
+ * @param[out]      params Parameters of the ring polynomial where the operations take place.
+ * @param[out] destination Store final result here.
+ */
+inline void multiply_power_of_x(const ciphertext &encrypted, ciphertext &destination, size_t index, seal::encryptionparameters &params ) {
 
     auto coeff_mod_count = params.coeff_modulus().size();
     size_t coeff_count   = params.poly_modulus_degree();
@@ -29,6 +36,15 @@ inline void multiply_power_of_X(const Ciphertext &encrypted, Ciphertext &destina
     }
 }
 
+/*! 
+ * \brief Hypercube expansion along one dimension. 
+ * @param[in]    encrypted Encrypted data in a ring polynomial.
+ * @param[in]            m The number of coefficients that will be extracted as constant terms from first argument (encrypted).
+ * @param[in]       galkey Galoi Keys needed to perform hypercube expansion.
+ * @param[in]       params Parameters of the ring polynomial where the operations take place.
+ * @param[in]    decryptor SEAL object needed to decrypt and measure noise.
+ * @param[out]      return Vector containing polynomials whose constant term is the coeeficient of the n-th term of the first argument (encrypted).
+ */
 inline vector<Ciphertext> expand_query(const Ciphertext &encrypted, uint32_t m, GaloisKeys &galkey, seal::EncryptionParameters &params, Decryptor &decryptor, KeyGenerator &keygen ){
 
     auto context = SEALContext::Create(params);
@@ -60,40 +76,15 @@ inline vector<Ciphertext> expand_query(const Ciphertext &encrypted, uint32_t m, 
 
     for (uint32_t i = 0; i < logm - 1; i++) {
         vector<Ciphertext> newtemp(temp.size() << 1);
-        // temp[a] = (j0 = a (mod 2**i) ? ) : Enc(x^{j0 - a}) else Enc(0).  With
-        // some scaling....
         int index_raw = (n << 1) - (1 << i);
         int index = (index_raw * galois_elts[i]) % (n << 1);
 
-        //cout << "      Initial: " << decryptor.invariant_noise_budget( temp[0] ) << endl;; 
-        
         for (uint32_t a = 0; a < temp.size(); a++) {
 
             evaluator_.apply_galois(temp[a], galois_elts[i], galkey, tempctxt_rotated);
-            ///cout << "rotate " << decryptor.invariant_noise_budget(tempctxt_rotated) << ", "; 
-
             evaluator_.add(temp[a], tempctxt_rotated, newtemp[a]);
             multiply_power_of_X(temp[a], tempctxt_shifted, index_raw, params );
-
-            //cout << "mul by x^pow: " << decryptor.invariant_noise_budget(tempctxt_shifted) << ", "; 
-
             multiply_power_of_X(tempctxt_rotated, tempctxt_rotatedshifted, index, params );
-
-            //Ciphertext R;
-            //Ciphertext R2;
-
-            ///evaluator_.square( temp[a] , R );
-
-
-            //evaluator_.square(R , R2 );
-            //evaluator_.relinearize_inplace( R, relin_keys);
-
-            //evaluator_.multiply(R , temp[0], R2 );
-            //cout << "mul by x^pow: " << decryptor.invariant_noise_budget(tempctxt_rotatedshifted) << endl; 
-            //cout << "         x^2: " << decryptor.invariant_noise_budget(R) << endl; 
-            //cout << "         x^4: " << decryptor.invariant_noise_budget(R2) << endl; 
-
-            // Enc(2^i x^j) if j = 0 (mod 2**i).
             evaluator_.add(tempctxt_shifted, tempctxt_rotatedshifted, newtemp[a + temp.size()]);
         }
         temp = newtemp;
@@ -105,7 +96,6 @@ inline vector<Ciphertext> expand_query(const Ciphertext &encrypted, uint32_t m, 
     for (uint32_t a = 0; a < temp.size(); a++) {
         if (a >= (m - (1 << (logm - 1)))) {                       // corner case.
             evaluator_.multiply_plain(temp[a], two, newtemp[a] ); // plain multiplication by 2.
-            // cout << client.decryptor_->invariant_noise_budget(newtemp[a]) << ", "; 
         } else {
             evaluator_.apply_galois(temp[a], galois_elts[logm - 1], galkey, tempctxt_rotated);
             evaluator_.add(temp[a], tempctxt_rotated, newtemp[a]);
@@ -121,8 +111,12 @@ inline vector<Ciphertext> expand_query(const Ciphertext &encrypted, uint32_t m, 
     return newVec;
 }
 
-
-string char_to_poly( string data ){  //Len does NOT include NULL terminator
+/*!
+ * \brief Embed string into a polynomial one byte per polynomial coefficient.
+ * @param[in] data String containing raw data.
+ * @param[out]     SEAL string hex polynomial encoding the data. 
+ */
+string char_to_poly( string data ){ 
     if( data.size() == 0) return "00";
     string table( "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff");
     
@@ -139,11 +133,13 @@ string char_to_poly( string data ){  //Len does NOT include NULL terminator
     return result;
 }
 
-
-
-
+/*! 
+ * \brief Embed string into a polynomial one byte per polynomial coefficient.
+ * @param[in] data Array of chars containing raw data.
+ * @param[out]     SEAL string hex polynomial encoding the data. 
+ */
 string char_to_poly( char *data ){
-    uint64_t len       = strlen(data);               //Does NOT include NULL terminator
+    uint64_t len       = strlen(data);       
     char *data_padded  = (char *) malloc( len - (len%8) + 8 );
     uint64_t *data_int = (uint64_t *) data_padded;   
     uint64_t  len_int  = (len+7)/8;
@@ -176,15 +172,33 @@ string char_to_poly( char *data ){
 }
 
 
+/*! 
+ * \brief Determine the smallest hypercube that will fit the chosen supported database size.
+ * @param[out]   hcube_dim Number of dimensions needed to encode db_size. 
+ * @param[out]   hcube_len Lenght of the hypercube dimensions.
+ * @param[in]  poly_degree Degree of the polynomial ring quotient polynomial. 
+ * @param[in]      db_size Size of the database.
+ */
 void get_hcube_param( uint64_t *hcube_dim, uint64_t *hcube_len, uint64_t poly_degree, uint64_t db_size){
     //Variables
     *hcube_dim = 0;
     *hcube_len = -1ULL;
 
     //Determine the smallest hypercube to encode row index given the database size.  
+    //Note the degree is hardcoded to 1 for now.
     for( ; *hcube_len > poly_degree ; (*hcube_dim)++)  (*hcube_len) = (uint64_t) ceil(  pow( (double) db_size, ( (double)  1.00 )/( (double) (*hcube_dim) + 1.00) ) ); 
 }
 
+
+
+/*! 
+ * \brief Generate encrypted query; i.e. embed index into a hypercube.
+ * @param[in]       row_index Row number of the item to be retrieved from the database.  
+ * @param[in]         db_size Size of the table we are querying. Should be equal to or greater than the table queried.
+ * @param[in] poly_mod_degree Polynomial Ring Quotient degree; e.g. the N in the Polynomial Ring F[x]/(X^N+1). 
+ * @param[in]       encryptor SEAL object needed to encrypt our hypercube embedding, aka query.
+ * @param[out]         return Vector of ciphertexts corresponding to the hypercube embedding of our query; one vector of ciphertexts for each hypercube dimension.
+ */
 vector< vector<Ciphertext> >  generate_query( uint64_t row_index, const uint64_t db_size, uint64_t poly_mod_degree , Encryptor &encryptor ) {
     //Variables
     uint64_t hcube_dim;
@@ -226,13 +240,12 @@ vector< vector<Ciphertext> >  generate_query( uint64_t row_index, const uint64_t
     return result;
 }
 
-string serialize_ciphertext(Ciphertext c) {
-    std::ostringstream output;
-    c.save(output);
-    return output.str();
-}
-
-
+/*! 
+ * \brief Generate Galois keys needed to perform the hypercube expansion. 
+ * @param[in]         N Encrypted data in a ring polynomial.
+ * @param[in]    keygen SEAL object needed to generate the keys, key factory.
+ * @param[out]   return All the galois keys needed to perform hypercube expansion, about log2(N) keys.
+ */
 Serializable<GaloisKeys>  generate_galois_keys( const int N, KeyGenerator *keygen ) { 
     vector< uint32_t > galois_elts;
     const int logN = seal::util::get_power_of_two(N);
