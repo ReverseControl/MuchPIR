@@ -346,7 +346,7 @@ int main(int narg, char *argv[])
     pqxx::result r = w.exec_prepared("pir_1",  query_buffer );
    
     for (auto row: r){
-        cout << "  Result Size: " << row[ "pir_select" ].size() << " bytes." endl;
+        cout << "  Result Size: " << row[ "pir_select" ].size() << " bytes." << endl;
         cout << "  Query  Size: " << query_buffer.size() << "bytes." << endl;
         
         //Interpret results as raw bytes
