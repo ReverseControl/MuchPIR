@@ -22,14 +22,14 @@ Let us take MuchPIR for a test run.
 git clone https://github.com/ReverseControl/MuchPIR.git
 cd MuchPIR
 docker build -t muchpir:1.0 .
-docker run muchpir:1.0
+docker run -e POSTGRES_PASSWORD=pass -e POSTGRES_USER=postgres  muchpir:1.0
 ```
 
 This will start the container that runs the postgres server with our extension. Now we want to enter the docker container while it is running. In another terminal, we do:
 
 ```
 docker container ls
-docker exec -u 0 -e POSTGRES_PASSWORD=pass -e POSTGRES_USER=postgres -ti <container-name> bash
+docker exec -u 0 -ti <container-name> bash
 ```
 
 By default you will enter in the right directory to run: 
