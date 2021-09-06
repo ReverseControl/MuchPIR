@@ -80,6 +80,8 @@ time ./a.out
 You should get an output like this:
 
 ```
+root@565c02be961c:/git/MuchPIR/client# g++  -std=c++17 -march=native -I/usr/local/include/SEAL-3.5/ -L/usr/local/lib/ client_module.cpp -lpqxx -lpq -l:libseal.so.3.5
+root@565c02be961c:/git/MuchPIR/client# time ./a.out 
 Plain Modulus: 40961
 
    db_size: 1024 <-- Note: By default 1024 in this demo. Can be increased up to 10s of millions: requires math and code, i.e the latest version. 
@@ -91,13 +93,14 @@ Polynomial Degree(N):4096
 Parameters size: 129
 query size in bytes: 131177
 
-  Result Size: 182416 bytes.
-  Query  Size: 1790462bytes.
-Query: 46x^11 + 72x^10 + 65x^9 + 64x^8 + 20x^7 + 41x^6 + 73x^5 + 74x^4 + 61x^3 + 69x^2 + 72x^1 + 65
+  Result Size: 182434 bytes.
+  Query  Size: 1790427bytes.
+Query result (Polynomial): 46x^11 + 72x^10 + 65x^9 + 64x^8 + 20x^7 + 41x^6 + 73x^5 + 74x^4 + 61x^3 + 69x^2 + 72x^1 + 65
+Query result (ASCII)     : Fred Astaire
 
-real	0m56.037s
-user	0m0.243s
-sys	0m0.024s
+real	0m58.264s
+user	0m0.230s
+sys	0m0.009s
 ```
 
 
