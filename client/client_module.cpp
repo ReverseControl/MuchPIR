@@ -340,7 +340,7 @@ int main(int narg, char *argv[])
     pqxx::work w(c);
 
     //Prepare SQL query
-    c.prepare( "pir_1", "SELECT pir_select( $1, description ) FROM data_10" );
+    c.prepare( "pir_1", "SELECT pir_select( $1, primaryName ) FROM data_10" );
 
     //Execute query
     pqxx::result r = w.exec_prepared("pir_1",  query_buffer );
