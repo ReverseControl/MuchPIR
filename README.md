@@ -29,12 +29,13 @@ This will start the container that runs the postgres server with our extension. 
 
 ```
 docker container ls
-docker exec -ti <container-name> bash
+docker exec -u 0 -ti <container-name> bash
 ```
 
 By default you will enter in the right directory to run: 
 
 ```
+su - postgres
 psql -U postgres -d testdb -f ./load_data.sql
 ```
 
@@ -75,7 +76,10 @@ psql -U postgres -d testdb -f /git/MuchPIR/pir_select--1.0.sql
 Now that we have the database running with the extension installed on a databse with tables and data
 ready to go, let's build the client for testing.
 
-
+```
+cd /git/MuchPIR/client
+g++  -std=c++17 -march=native -I/usr/local/include/SEAL-3.5/ -L/usr/local/lib/     client_module.cpp  -lpqxx -lpq -l:libseal.so.3.5
+```
 
 
 
