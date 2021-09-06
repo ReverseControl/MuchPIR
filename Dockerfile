@@ -50,13 +50,17 @@ RUn git clone https://github.com/ReverseControl/MuchPIR.git && \
     make                                                    && \
     make install
 
+#For editing if need be
+RUN apt update && apt install -y vim
+
 #Run the remaining command as postgres user
 USER postgres
 
 #Setup postgres
 RUN /etc/init.d/postgresql start                                          && \
     psql --command "CREATE USER docker WITH SUPERUSER PASSWORD 'docker';" && \
-    createdb -O docker docker
+    createdb -O docker   docker                                           && \
+    createdb -O postgres testdb
 
 # Adjust PostgreSQL configuration so that remote connections to the database are possible.
 RUN echo "host all  all    0.0.0.0/0  md5" >> /etc/postgresql/13/main/pg_hba.conf
@@ -66,12 +70,21 @@ RUN echo "listen_addresses='*'"            >> /etc/postgresql/13/main/postgresql
 EXPOSE 5432
 
 # Add VOLUMEs to allow backup of config, logs and databases
-VOLUME  ["/etc/postgresql", "/var/log/postgresql", "/var/lib/postgresql"]
+#VOLUME  ["/etc/postgresql", "/var/log/postgresql", "/var/lib/postgresql"]
+
+
+#Add data to test C/C++ Postgres Aggregate Extension inside the container
+WORKDIR /data/
+COPY load_data.sql /data/
+COPY ./sample_imdb.tsv /data/
+
+#Tell postgres where to find libseal.so
+ENV LD_LIBRARY_PATH="/usr/local/lib/"
 
 #Meta tags
-LABEL author=ReverseControl
-LABEL version=1.0.0
-LABEL date=04/09/2021
+LABEL author="ReverseControl"
+LABEL version="1.0.0"
+LABEL date="04/09/2021"
 LABEL description="Image to run MuchPIR on Postgres 13 in a container."
 LABEL version_seal="3.5.8"
 LABEL version_liboqxx="7.2.0"
