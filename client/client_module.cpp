@@ -11,7 +11,7 @@
 using namespace std;
 using namespace seal;
 using namespace seal::util;
-#define DB_SIZE (4096)
+#define DB_SIZE (1024)
 
 /*! 
  * \brief Embed string into a polynomial one character per polynomial coefficient.
@@ -211,8 +211,12 @@ vector< vector<Ciphertext> >  generate_query( uint64_t row_index, const uint64_t
     Plaintext pt( poly_mod_degree );
     vector< vector<Ciphertext> >  result( hcube_dim );
 
-    cout << endl << "db_size: " << db_size << endl << "row_index: " << row_index << endl << "hcube_dim: " << hcube_dim << endl << "hecube_len: " << hcube_len << endl;
-    cout << "N=" << poly_mod_degree << endl; ;
+    cout << "\n\n" << "   db_size: " << db_size <<   " <-- Note: By default 1024 in this demo. Can be increased up to 10s of millions: requires math and code, i.e the latest version. "  << endl   
+                   << " row_index: " << row_index << " <-- Note: You can change this to any row you want in code." << endl 
+                   << " hcube_dim: " << hcube_dim << " <-- Note: Hypercube dimension. This demo supports only 1 dimension. Limits DB_size to 4096 rows." << endl 
+                   << "hecube_len: " << hcube_len << " <-- Note: An optimization. Does not affect this demo. Improves performance for high dimensional hyper cubes." << "\n\n";
+
+    cout << "Polynomial Degree(N):" << poly_mod_degree << endl; ;
     
     for ( ;  hcube_dim > 0 ;  ) {
 
@@ -307,7 +311,7 @@ int main(int narg, char *argv[])
     srand (time(NULL));
 
     //Generate random row number
-    uint64_t row_index = 0;  //rand() % 1000;
+    uint64_t row_index = 0; 
 
     //Prepare pir query 
     vector< vector<Ciphertext> >  he_query = generate_query( row_index, DB_SIZE, poly_modulus_degree , encryptor );
@@ -318,7 +322,7 @@ int main(int narg, char *argv[])
     std::stringstream buffer;
     params.save( buffer, compr_mode_type::none );
     uint64_t prm = buffer.str().size() ;
-    cout << " Parameters size: " << prm << endl;
+    cout << "Parameters size: " << prm << endl;
     GalKeys.save( buffer );
     uint64_t lk = buffer.str().size();
     he_query[0][0].save( buffer, compr_mode_type::none );
@@ -346,7 +350,7 @@ int main(int narg, char *argv[])
     pqxx::result r = w.exec_prepared("pir_1",  query_buffer );
    
     for (auto row: r){
-        cout << "  Result Size: " << row[ "pir_select" ].size() << " bytes." << endl;
+        cout << "\n  Result Size: " << row[ "pir_select" ].size() << " bytes." << endl;
         cout << "  Query  Size: " << query_buffer.size() << "bytes." << endl;
         
         //Interpret results as raw bytes
