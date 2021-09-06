@@ -35,6 +35,7 @@ docker exec -u 0 -ti <container-name> bash
 By default you will enter in the right directory to run: 
 
 ```
+cd /data/
 su - postgres
 psql -U postgres -d testdb -f ./load_data.sql
 exit
@@ -61,6 +62,7 @@ Postgres extensions are installed per database. Now that we have installed our e
 may use it.
 
 ```
+cd /data/
 su - postgres
 psql -U postgres -d testdb -f /git/MuchPIR/pir_select--1.0.sql
 exit
