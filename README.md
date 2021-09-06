@@ -74,5 +74,31 @@ ready to go, let's build the client for testing.
 ```
 cd /git/MuchPIR/client
 g++  -std=c++17 -march=native -I/usr/local/include/SEAL-3.5/ -L/usr/local/lib/ client_module.cpp -lpqxx -lpq -l:libseal.so.3.5
+time ./a.out
 ```
+
+You should get an output like this:
+
+```
+Plain Modulus: 40961
+
+   db_size: 1024 <-- Note: By default 1024 in this demo. Can be increased up to 10s of millions: requires math and code, i.e the latest version. 
+ row_index: 0 <-- Note: You can change this to any row you want in code.
+ hcube_dim: 1 <-- Note: Hypercube dimension. This demo supports only 1 dimension. Limits DB_size to 4096 rows.
+hecube_len: 1024 <-- Note: An optimization. Does not affect this demo. Improves performance for high dimensional hyper cubes.
+
+Polynomial Degree(N):4096
+Parameters size: 129
+query size in bytes: 131177
+
+  Result Size: 182416 bytes.
+  Query  Size: 1790462bytes.
+Query: 46x^11 + 72x^10 + 65x^9 + 64x^8 + 20x^7 + 41x^6 + 73x^5 + 74x^4 + 61x^3 + 69x^2 + 72x^1 + 65
+
+real	0m56.037s
+user	0m0.243s
+sys	0m0.024s
+```
+
+
 
