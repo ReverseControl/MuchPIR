@@ -44,25 +44,15 @@ find here: https://datasets.imdbws.com/name.basics.tsv.gz. We took the first 69,
 line which is the header for the columns, and created several tables.
 
 ```
-TABLE         Size
-data_10       1024
-data_11       2048
-data_12       4096
-data_13       8192
-data_14      16384
-data_15      32768
-data_16      65536 
-data_all     69420
-
-Signature for the tables
-table_N (
-       nconst            bigint,
-       primaryName       text,
-       birthYear         bigint,
-       deathYear         bigint,
-       primaryProfession text,
-       knownForTitles    text
-);
+TABLE         Size   |    Signature for the tables
+data_10       1024   |    table_N (
+data_11       2048   |           nconst            bigint,
+data_12       4096   |           primaryName       text,
+data_13       8192   |           birthYear         bigint,
+data_14      16384   |           deathYear         bigint,
+data_15      32768   |           primaryProfession text,
+data_16      65536   |           knownForTitles    text  
+data_all     69420   |    ); 
 ```
 
 Postgres extensions are installed per database. Now that we have installed our extension on the system 
@@ -78,8 +68,6 @@ ready to go, let's build the client for testing.
 
 ```
 cd /git/MuchPIR/client
-g++  -std=c++17 -march=native -I/usr/local/include/SEAL-3.5/ -L/usr/local/lib/     client_module.cpp  -lpqxx -lpq -l:libseal.so.3.5
+g++  -std=c++17 -march=native -I/usr/local/include/SEAL-3.5/ -L/usr/local/lib/ client_module.cpp -lpqxx -lpq -l:libseal.so.3.5
 ```
-
-
 
