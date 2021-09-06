@@ -29,7 +29,7 @@ This will start the container that runs the postgres server with our extension. 
 
 ```
 docker container ls
-docker exec -u 0 -ti <container-name> bash
+docker exec -u 0 -e POSTGRES_PASSWORD=pass -e POSTGRES_USER=postgres -ti <container-name> bash
 ```
 
 By default you will enter in the right directory to run: 
@@ -37,6 +37,7 @@ By default you will enter in the right directory to run:
 ```
 su - postgres
 psql -U postgres -d testdb -f ./load_data.sql
+exit
 ```
 
 This will load data into tables that we will use for testing. The data comes from the IMDB dataset you 
@@ -60,7 +61,9 @@ Postgres extensions are installed per database. Now that we have installed our e
 may use it.
 
 ```
+su - postgres
 psql -U postgres -d testdb -f /git/MuchPIR/pir_select--1.0.sql
+exit
 ```
 
 Now that we have the database running with the extension installed on a databse with tables and data
