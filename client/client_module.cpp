@@ -280,23 +280,6 @@ typedef struct state_t {
 
 int main(int narg, char *argv[])
 {
-
-    //cout << "cipher_t: " << sizeof( cipher_t ) << endl;
-    //cout << "param_t:  " << sizeof( state_t ) << endl;   
-
-
-    string test("A Epic Drama of a Feminist And a Mad Scientist who must Battle a Teacher in The Canadian Rockies");
-    //for(int jj=0; jj < 27; jj++ ) cout << test2[jj] ;
-    //cout << endl;
-    string tas = char_to_poly(test);
-    cout << tas << endl << endl;
-
-    //string tas2 = char_to_poly(test2);
-    //cout << tas2 << endl;
-
-    //Plaintext te(tas);
-    //cout << endl << te.to_string() << endl;
-
     //Set up parameters
     seal::EncryptionParameters params( seal::scheme_type::BFV );
     size_t poly_modulus_degree = 4096;
@@ -348,82 +331,34 @@ int main(int narg, char *argv[])
     query_buffer.resize( str_buffer.size() );
     memcpy( (void *) query_buffer.data(), (void *) str_buffer.data(), str_buffer.size() );
 
-    //std::stringstream buffer_tmp;
-    //GalKeys.save( buffer_tmp, compr_mode_type::none );
-    //GaloisKeys gl_keys;
-    //gl_keys.load(context, buffer_tmp);
-    //vector<Ciphertext> expanded = expand_query( he_query[0][0], DB_SIZE, gl_keys , params, decryptor, keygen );
-    //Plaintext decr;
-   
-    //////Save state to memory
-    //for (uint32_t jj = 0; jj < expanded.size(); jj++){
-    //    //Create stream to store Ciphertext Object
-    //    std::ostringstream buffer;
-   
-    //    //Save Ciphertext to stream as raw bytes
-    //    //Compression is turned off to get constant size buffers
-    //    expanded[jj].save(  buffer, compr_mode_type::none );
-
-    //    //Get the length of the stream in bytes
-    //    std::string data_string = buffer.str();
-   
-    //    if( 131177 != data_string.size()) cout << data_string.size() << endl;
-    //}
-
- 
-    //Ciphertext res;   
-    //Plaintext mul_temp("AB");
-    //evaluator.multiply_plain(  he_query[0][0], mul_temp, res ); 
-    //std::stringstream buffer_tmp2;
-    //res.save( buffer_tmp2, compr_mode_type::none );
-    //cout << "mul plain by cipher size in bytes: " << buffer_tmp2.str().size() << endl;
-       
-
-
-    //vector< int > noise; 
-    //for( int jj = 0; jj < expanded.size(); jj++){
-    //    //cout << "Noise after expansion: " << decryptor.invariant_noise_budget( expanded[jj]   ) << endl; 
-
-    //    if( jj == row_index ) { 
-    //        decryptor.decrypt( expanded[jj] , decr);
-    //        cout << "Query["<<jj<<"]: " << decr.to_string() << endl;
-    //    }
-
-    //    noise.push_back(  decryptor.invariant_noise_budget( expanded[jj]   )   );
-    //}
-
-    //auto n = noise.size(); 
-    //float average = 0.0f;
-    //if ( n != 0) {
-    //     average = accumulate( noise.begin(), noise.end(), 0.0) / n; 
-    //}
-
-    //cout << "Average noise on expansion: " << average << endl;
-    //cout << "       Minimum noise value: " << *min_element( noise.begin(), noise.end()) << endl;
-    //cout << "                     Bytes: " << str_buffer.size() << endl; 
-
-   
     ///////////////////////
     //DATABASE INTERATION//
     ///////////////////////
-    pqxx::connection c{"postgresql://nam:simplepassword@localhost/contrib_regression"};
+
+    //Connect to database
+    pqxx::connection c{"postgresql://postgres:pass@localhost/testdb"};
     pqxx::work w(c);
-    c.prepare( "pir_1", "SELECT pir_select( $1, description ) FROM ( SELECT * FROM film ORDER BY film_id) as ordered_table" );
-    //c.prepare( "pir_1", "SELECT pir_select( $1, name )         FROM seal_table" );
+
+    //Prepare SQL query
+    c.prepare( "pir_1", "SELECT pir_select( $1, description ) FROM data_10" );
+
+    //Execute query
     pqxx::result r = w.exec_prepared("pir_1",  query_buffer );
    
     for (auto row: r){
-        cout << "  Result Size: " << row[ "pir_select" ].size() << endl;
-        cout << "  Query  Size: " << query_buffer.size() << endl;
+        cout << "  Result Size: " << row[ "pir_select" ].size() << " bytes." endl;
+        cout << "  Query  Size: " << query_buffer.size() << "bytes." << endl;
         
+        //Interpret results as raw bytes
         auto data = row[ "pir_select" ].as<std::basic_string<std::byte>>();
 
-        //cout << data.to_string() << endl;
+        //Load raw bytes as polynomial ciphertext
         Ciphertext result;   
         stringstream stream;
         for( int jj=0; jj < data.size(); jj++) stream << (char)data[jj];
         result.load( context, stream  );
 
+        //Do some magic and decrypt the ciphertext
         Plaintext decrypted_result;
         decryptor.decrypt( result , decrypted_result);
         Plaintext inverse("9FF7");
@@ -432,6 +367,9 @@ int main(int narg, char *argv[])
         evaluator.multiply_plain( temp, decrypted_result, result ); 
         decryptor.decrypt( result , decrypted_result);
 
+        //Print the plain polynomial
         cout << "Query: " << decrypted_result.to_string() << endl;
+
+        //TODO: print polynomial data as raw ASCII chars.
     }
 }
