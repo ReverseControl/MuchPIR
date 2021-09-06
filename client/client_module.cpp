@@ -20,7 +20,7 @@ using namespace seal::util;
  * @param[out]      params Parameters of the ring polynomial where the operations take place.
  * @param[out] destination Store final result here.
  */
-inline void multiply_power_of_x(const ciphertext &encrypted, ciphertext &destination, size_t index, seal::encryptionparameters &params ) {
+inline void multiply_power_of_x(const Ciphertext &encrypted, Ciphertext &destination, size_t index, seal::EncryptionParameters &params ) {
 
     auto coeff_mod_count = params.coeff_modulus().size();
     size_t coeff_count   = params.poly_modulus_degree();
@@ -83,8 +83,8 @@ inline vector<Ciphertext> expand_query(const Ciphertext &encrypted, uint32_t m, 
 
             evaluator_.apply_galois(temp[a], galois_elts[i], galkey, tempctxt_rotated);
             evaluator_.add(temp[a], tempctxt_rotated, newtemp[a]);
-            multiply_power_of_X(temp[a], tempctxt_shifted, index_raw, params );
-            multiply_power_of_X(tempctxt_rotated, tempctxt_rotatedshifted, index, params );
+            multiply_power_of_x(temp[a], tempctxt_shifted, index_raw, params );
+            multiply_power_of_x(tempctxt_rotated, tempctxt_rotatedshifted, index, params );
             evaluator_.add(tempctxt_shifted, tempctxt_rotatedshifted, newtemp[a + temp.size()]);
         }
         temp = newtemp;
@@ -99,8 +99,8 @@ inline vector<Ciphertext> expand_query(const Ciphertext &encrypted, uint32_t m, 
         } else {
             evaluator_.apply_galois(temp[a], galois_elts[logm - 1], galkey, tempctxt_rotated);
             evaluator_.add(temp[a], tempctxt_rotated, newtemp[a]);
-            multiply_power_of_X(temp[a], tempctxt_shifted, index_raw, params  );
-            multiply_power_of_X(tempctxt_rotated, tempctxt_rotatedshifted, index, params );
+            multiply_power_of_x(temp[a], tempctxt_shifted, index_raw, params  );
+            multiply_power_of_x(tempctxt_rotated, tempctxt_rotatedshifted, index, params );
             evaluator_.add(tempctxt_shifted, tempctxt_rotatedshifted, newtemp[a + temp.size()]);
         }
     }
