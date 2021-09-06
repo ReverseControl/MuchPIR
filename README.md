@@ -22,14 +22,6 @@ Let us take MuchPIR for a test run.
 git clone https://github.com/ReverseControl/MuchPIR.git
 cd MuchPIR
 docker build -t muchpir:1.0 .
-```
-
-When that is done building. Start a container. This container will be a running server with 
-the MuchPIR extension installed and accessible to postgres.
-
-
-```
-docker build -t muchpir:1.0 .
 docker run muchpir:1.0
 ```
 
@@ -40,8 +32,7 @@ docker container ls
 docker exec -ti <container-name> bash
 ```
 
-Now we are inside the container that is running the postgres server. By default you will enter in the
-right directory to run: 
+By default you will enter in the right directory to run: 
 
 ```
 psql -U postgres -d testdb -f ./load_data.sql
@@ -79,6 +70,10 @@ may use it.
 
 ```
 psql -U postgres -d testdb -f /git/MuchPIR/pir_select--1.0.sql
+```
+
+Now that we have the database running with the extension installed on a databse with tables and data
+ready to go, let's build the client for testing.
 
 
 
