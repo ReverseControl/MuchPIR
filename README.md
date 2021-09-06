@@ -2,8 +2,9 @@
 
 This is a protype implementation of Private Information Retrieval using Homomorphic Encryption implemented as a C/C++ Aggregate extension to Postgres.
 
-This version is one of my early versions and its performance is severely lacking. Nonetheless, I think it is good a enough implementation for
+This version is an early versions and its performance is severely lacking. Nonetheless, it is good a enough implementation for
 folks who want to experiment with PIR on Postgres and have a working C/C++ extension.
+
 
 # Buiding
 
@@ -13,7 +14,7 @@ This code has been run and tested on Ubuntu 18.04 and Ubuntu 20.04. It does requ
 2. Postgfres C++ wrapper libpqxx: https://github.com/jtv/libpqxx
 3. Postgres Development Packages for C/C++ extensions.
 
-#Dockerfile
+# Demo
 
 Let us take MuchPIR for a test run.
 
@@ -32,10 +33,7 @@ docker build -t muchpir:1.0 .
 docker run muchpir:1.0
 ```
 
-This will start the container that runs the postgres server with our extension. 
-
-Now we want to enter the docker container while it is running. In another terminal, 
-we do:
+This will start the container that runs the postgres server with our extension. Now we want to enter the docker container while it is running. In another terminal, we do:
 
 ```
 docker container ls
@@ -47,7 +45,6 @@ right directory to run:
 
 ```
 psql -U postgres -d testdb -f ./load_data.sql
-
 ```
 
 This will load data into tables that we will use for testing. The data comes from the IMDB dataset you 
@@ -82,7 +79,7 @@ may use it.
 
 ```
 psql -U postgres -d testdb -f /git/MuchPIR/pir_select--1.0.sql
-```
+
 
 
 
