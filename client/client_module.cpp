@@ -293,7 +293,7 @@ int main(int narg, char *argv[])
     auto context = SEALContext::Create(params);
     Evaluator evaluator(context);
 
-    cout << "Plain Modulus: " << 40961 ;
+    cout << "\nPlain Modulus: " << 40961 ;
 
     //Create public/private keys
     KeyGenerator keygen(context);
@@ -348,16 +348,15 @@ int main(int narg, char *argv[])
 
     //Execute query
     pqxx::result r = w.exec_prepared("pir_1",  query_buffer );
-   
-    for (auto row: r){
+      for (auto row: r){
         cout << "\n  Result Size: " << row[ "pir_select" ].size() << " bytes." << endl;
         cout << "  Query  Size: " << query_buffer.size() << "bytes." << endl;
-        
+
         //Interpret results as raw bytes
         auto data = row[ "pir_select" ].as<std::basic_string<std::byte>>();
 
         //Load raw bytes as polynomial ciphertext
-        Ciphertext result;   
+        Ciphertext result;
         stringstream stream;
         for( int jj=0; jj < data.size(); jj++) stream << (char)data[jj];
         result.load( context, stream  );
@@ -368,12 +367,46 @@ int main(int narg, char *argv[])
         Plaintext inverse("9FF7");
         Ciphertext temp;
         encryptor.encrypt( inverse, temp  );
-        evaluator.multiply_plain( temp, decrypted_result, result ); 
+        evaluator.multiply_plain( temp, decrypted_result, result );
         decryptor.decrypt( result , decrypted_result);
 
-        //Print the plain polynomial
-        cout << "Query: " << decrypted_result.to_string() << endl;
+        //Get plain polynomial as a string
+        std::string query_res = decrypted_result.to_string();
 
-        //TODO: print polynomial data as raw ASCII chars.
+        //Print polunomial
+        cout << "Query result (Polynomial): " << query_res << endl;
+        cout << "Query result (ASCII)     : ";
+
+        //Parse polynomila coefficient by coefficient
+        std::string delimiter   = " + ";
+        size_t pos = 0;
+        uint32_t cha;
+        std::string token;
+
+        while ((pos = query_res.find(delimiter)) != std::string::npos) {
+                //Extract the term from the remaining terms in the polynomial
+                token = query_res.substr(0, pos);
+
+                //Extract the coefficient of the term. Expected to be a string of 1 byte in hex.
+                token = token.substr(0,2);
+
+                std::stringstream ss;
+                ss << std::hex << token;
+                ss >> cha;
+
+                //Print the coefficient
+                std::cout << (char) cha;
+
+                //Erase the coefficient we just extracted from the remaining polynomial
+                query_res.erase(0, pos + delimiter.length());
+        }
+
+        //Get last character
+        token = query_res.substr(0,2);
+        std::stringstream ss;
+        ss << std::hex << token;
+        ss >> cha;
+        cout << (char) cha << endl;
     }
 }
+ 
