@@ -20,7 +20,7 @@ Highly optimized parallelized PIR query.
 
 This demo targets string types on postgres, but can easily be adapted to query any type: int4, int8, float, bytea, etc.
 
-# Buiding
+# Building
 
 This code has been run and tested on Ubuntu 18.04 and Ubuntu 20.04. It does require:
 
