@@ -1,6 +1,3 @@
--- complain if script is sourced in psql, rather than via CREATE EXTENSION
-\echo Use "CREATE EXTENSION pir_select" to load this file. \quit
-
 CREATE OR REPLACE FUNCTION
 pir_select_internal( state bytea, query bytea, col text)
 RETURNS bytea

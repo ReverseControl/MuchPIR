@@ -11,7 +11,7 @@
 using namespace std;
 using namespace seal;
 using namespace seal::util;
-#define DB_SIZE (4096)
+#define DB_SIZE (1024)
 
 /*! 
  * \brief Embed string into a polynomial one character per polynomial coefficient.
@@ -20,7 +20,7 @@ using namespace seal::util;
  * @param[out]      params Parameters of the ring polynomial where the operations take place.
  * @param[out] destination Store final result here.
  */
-inline void multiply_power_of_x(const ciphertext &encrypted, ciphertext &destination, size_t index, seal::encryptionparameters &params ) {
+inline void multiply_power_of_x(const Ciphertext &encrypted, Ciphertext &destination, size_t index, seal::EncryptionParameters &params ) {
 
     auto coeff_mod_count = params.coeff_modulus().size();
     size_t coeff_count   = params.poly_modulus_degree();
@@ -83,8 +83,8 @@ inline vector<Ciphertext> expand_query(const Ciphertext &encrypted, uint32_t m, 
 
             evaluator_.apply_galois(temp[a], galois_elts[i], galkey, tempctxt_rotated);
             evaluator_.add(temp[a], tempctxt_rotated, newtemp[a]);
-            multiply_power_of_X(temp[a], tempctxt_shifted, index_raw, params );
-            multiply_power_of_X(tempctxt_rotated, tempctxt_rotatedshifted, index, params );
+            multiply_power_of_x(temp[a], tempctxt_shifted, index_raw, params );
+            multiply_power_of_x(tempctxt_rotated, tempctxt_rotatedshifted, index, params );
             evaluator_.add(tempctxt_shifted, tempctxt_rotatedshifted, newtemp[a + temp.size()]);
         }
         temp = newtemp;
@@ -99,8 +99,8 @@ inline vector<Ciphertext> expand_query(const Ciphertext &encrypted, uint32_t m, 
         } else {
             evaluator_.apply_galois(temp[a], galois_elts[logm - 1], galkey, tempctxt_rotated);
             evaluator_.add(temp[a], tempctxt_rotated, newtemp[a]);
-            multiply_power_of_X(temp[a], tempctxt_shifted, index_raw, params  );
-            multiply_power_of_X(tempctxt_rotated, tempctxt_rotatedshifted, index, params );
+            multiply_power_of_x(temp[a], tempctxt_shifted, index_raw, params  );
+            multiply_power_of_x(tempctxt_rotated, tempctxt_rotatedshifted, index, params );
             evaluator_.add(tempctxt_shifted, tempctxt_rotatedshifted, newtemp[a + temp.size()]);
         }
     }
@@ -211,8 +211,12 @@ vector< vector<Ciphertext> >  generate_query( uint64_t row_index, const uint64_t
     Plaintext pt( poly_mod_degree );
     vector< vector<Ciphertext> >  result( hcube_dim );
 
-    cout << endl << "db_size: " << db_size << endl << "row_index: " << row_index << endl << "hcube_dim: " << hcube_dim << endl << "hecube_len: " << hcube_len << endl;
-    cout << "N=" << poly_mod_degree << endl; ;
+    cout << "\n\n" << "   db_size: " << db_size <<   " <-- Note: By default 1024 in this demo. Can be increased up to 10s of millions: requires math and code, i.e the latest version. "  << endl   
+                   << " row_index: " << row_index << " <-- Note: You can change this to any row you want in code." << endl 
+                   << " hcube_dim: " << hcube_dim << " <-- Note: Hypercube dimension. This demo supports only 1 dimension. Limits DB_size to 4096 rows." << endl 
+                   << "hecube_len: " << hcube_len << " <-- Note: An optimization. Does not affect this demo. Improves performance for high dimensional hyper cubes." << "\n\n";
+
+    cout << "Polynomial Degree(N):" << poly_mod_degree << endl; ;
     
     for ( ;  hcube_dim > 0 ;  ) {
 
@@ -280,23 +284,6 @@ typedef struct state_t {
 
 int main(int narg, char *argv[])
 {
-
-    //cout << "cipher_t: " << sizeof( cipher_t ) << endl;
-    //cout << "param_t:  " << sizeof( state_t ) << endl;   
-
-
-    string test("A Epic Drama of a Feminist And a Mad Scientist who must Battle a Teacher in The Canadian Rockies");
-    //for(int jj=0; jj < 27; jj++ ) cout << test2[jj] ;
-    //cout << endl;
-    string tas = char_to_poly(test);
-    cout << tas << endl << endl;
-
-    //string tas2 = char_to_poly(test2);
-    //cout << tas2 << endl;
-
-    //Plaintext te(tas);
-    //cout << endl << te.to_string() << endl;
-
     //Set up parameters
     seal::EncryptionParameters params( seal::scheme_type::BFV );
     size_t poly_modulus_degree = 4096;
@@ -306,7 +293,7 @@ int main(int narg, char *argv[])
     auto context = SEALContext::Create(params);
     Evaluator evaluator(context);
 
-    cout << "Plain Modulus: " << 40961 ;
+    cout << "\nPlain Modulus: " << 40961 ;
 
     //Create public/private keys
     KeyGenerator keygen(context);
@@ -324,7 +311,7 @@ int main(int narg, char *argv[])
     srand (time(NULL));
 
     //Generate random row number
-    uint64_t row_index = 0;  //rand() % 1000;
+    uint64_t row_index = 0; 
 
     //Prepare pir query 
     vector< vector<Ciphertext> >  he_query = generate_query( row_index, DB_SIZE, poly_modulus_degree , encryptor );
@@ -335,7 +322,7 @@ int main(int narg, char *argv[])
     std::stringstream buffer;
     params.save( buffer, compr_mode_type::none );
     uint64_t prm = buffer.str().size() ;
-    cout << " Parameters size: " << prm << endl;
+    cout << "Parameters size: " << prm << endl;
     GalKeys.save( buffer );
     uint64_t lk = buffer.str().size();
     he_query[0][0].save( buffer, compr_mode_type::none );
@@ -348,90 +335,78 @@ int main(int narg, char *argv[])
     query_buffer.resize( str_buffer.size() );
     memcpy( (void *) query_buffer.data(), (void *) str_buffer.data(), str_buffer.size() );
 
-    //std::stringstream buffer_tmp;
-    //GalKeys.save( buffer_tmp, compr_mode_type::none );
-    //GaloisKeys gl_keys;
-    //gl_keys.load(context, buffer_tmp);
-    //vector<Ciphertext> expanded = expand_query( he_query[0][0], DB_SIZE, gl_keys , params, decryptor, keygen );
-    //Plaintext decr;
-   
-    //////Save state to memory
-    //for (uint32_t jj = 0; jj < expanded.size(); jj++){
-    //    //Create stream to store Ciphertext Object
-    //    std::ostringstream buffer;
-   
-    //    //Save Ciphertext to stream as raw bytes
-    //    //Compression is turned off to get constant size buffers
-    //    expanded[jj].save(  buffer, compr_mode_type::none );
-
-    //    //Get the length of the stream in bytes
-    //    std::string data_string = buffer.str();
-   
-    //    if( 131177 != data_string.size()) cout << data_string.size() << endl;
-    //}
-
- 
-    //Ciphertext res;   
-    //Plaintext mul_temp("AB");
-    //evaluator.multiply_plain(  he_query[0][0], mul_temp, res ); 
-    //std::stringstream buffer_tmp2;
-    //res.save( buffer_tmp2, compr_mode_type::none );
-    //cout << "mul plain by cipher size in bytes: " << buffer_tmp2.str().size() << endl;
-       
-
-
-    //vector< int > noise; 
-    //for( int jj = 0; jj < expanded.size(); jj++){
-    //    //cout << "Noise after expansion: " << decryptor.invariant_noise_budget( expanded[jj]   ) << endl; 
-
-    //    if( jj == row_index ) { 
-    //        decryptor.decrypt( expanded[jj] , decr);
-    //        cout << "Query["<<jj<<"]: " << decr.to_string() << endl;
-    //    }
-
-    //    noise.push_back(  decryptor.invariant_noise_budget( expanded[jj]   )   );
-    //}
-
-    //auto n = noise.size(); 
-    //float average = 0.0f;
-    //if ( n != 0) {
-    //     average = accumulate( noise.begin(), noise.end(), 0.0) / n; 
-    //}
-
-    //cout << "Average noise on expansion: " << average << endl;
-    //cout << "       Minimum noise value: " << *min_element( noise.begin(), noise.end()) << endl;
-    //cout << "                     Bytes: " << str_buffer.size() << endl; 
-
-   
     ///////////////////////
     //DATABASE INTERATION//
     ///////////////////////
-    pqxx::connection c{"postgresql://nam:simplepassword@localhost/contrib_regression"};
+
+    //Connect to database
+    pqxx::connection c{"postgresql://postgres:pass@localhost/testdb"};
     pqxx::work w(c);
-    c.prepare( "pir_1", "SELECT pir_select( $1, description ) FROM ( SELECT * FROM film ORDER BY film_id) as ordered_table" );
-    //c.prepare( "pir_1", "SELECT pir_select( $1, name )         FROM seal_table" );
+
+    //Prepare SQL query
+    c.prepare( "pir_1", "SELECT pir_select( $1, primaryName ) FROM data_10" );
+
+    //Execute query
     pqxx::result r = w.exec_prepared("pir_1",  query_buffer );
-   
-    for (auto row: r){
-        cout << "  Result Size: " << row[ "pir_select" ].size() << endl;
-        cout << "  Query  Size: " << query_buffer.size() << endl;
-        
+      for (auto row: r){
+        cout << "\n  Result Size: " << row[ "pir_select" ].size() << " bytes." << endl;
+        cout << "  Query  Size: " << query_buffer.size() << "bytes." << endl;
+
+        //Interpret results as raw bytes
         auto data = row[ "pir_select" ].as<std::basic_string<std::byte>>();
 
-        //cout << data.to_string() << endl;
-        Ciphertext result;   
+        //Load raw bytes as polynomial ciphertext
+        Ciphertext result;
         stringstream stream;
         for( int jj=0; jj < data.size(); jj++) stream << (char)data[jj];
         result.load( context, stream  );
 
+        //Do some magic and decrypt the ciphertext
         Plaintext decrypted_result;
         decryptor.decrypt( result , decrypted_result);
         Plaintext inverse("9FF7");
         Ciphertext temp;
         encryptor.encrypt( inverse, temp  );
-        evaluator.multiply_plain( temp, decrypted_result, result ); 
+        evaluator.multiply_plain( temp, decrypted_result, result );
         decryptor.decrypt( result , decrypted_result);
 
-        cout << "Query: " << decrypted_result.to_string() << endl;
+        //Get plain polynomial as a string
+        std::string query_res = decrypted_result.to_string();
+
+        //Print polunomial
+        cout << "Query result (Polynomial): " << query_res << endl;
+        cout << "Query result (ASCII)     : ";
+
+        //Parse polynomila coefficient by coefficient
+        std::string delimiter   = " + ";
+        size_t pos = 0;
+        uint32_t cha;
+        std::string token;
+
+        while ((pos = query_res.find(delimiter)) != std::string::npos) {
+                //Extract the term from the remaining terms in the polynomial
+                token = query_res.substr(0, pos);
+
+                //Extract the coefficient of the term. Expected to be a string of 1 byte in hex.
+                token = token.substr(0,2);
+
+                std::stringstream ss;
+                ss << std::hex << token;
+                ss >> cha;
+
+                //Print the coefficient
+                std::cout << (char) cha;
+
+                //Erase the coefficient we just extracted from the remaining polynomial
+                query_res.erase(0, pos + delimiter.length());
+        }
+
+        //Get last character
+        token = query_res.substr(0,2);
+        std::stringstream ss;
+        ss << std::hex << token;
+        ss >> cha;
+        cout << (char) cha << endl;
     }
 }
+ 
