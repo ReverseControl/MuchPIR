@@ -1,11 +1,8 @@
 # MuchPir
 
-Private Information Retrieval using Homomorphic Encryption implemented as a C/C++ Aggregate extension to Postgres.
+Contact us: postgres-pir@pm.me 
 
-This version is an early versions and its performance is severely lacking. Nonetheless, it is good a enough implementation for
-folks who want to experiment with PIR on Postgres and have a working C/C++ extension.
-
-This demo targets string types on postgres, but can easily be adapted to query any type: int4, int8, float, bytea, etc.
+Private Information Retrieval using Homomorphic Encryption implemented as a C/C++ Aggregate extension to Postgres. This demo is good a enough implementation for folks who want to experiment with PIR on Postgres and have a working C/C++ extension.
 
 The latest version of the software this demo is based on has the following characteristics:
 
@@ -21,9 +18,7 @@ Supported database size: > 10 Million Rows.
 Highly optimized parallelized PIR query.
 ```
 
-Contact us: postgres-pir@pm.me 
-
-
+This demo targets string types on postgres, but can easily be adapted to query any type: int4, int8, float, bytea, etc.
 
 # Buiding
 
