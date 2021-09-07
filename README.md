@@ -11,7 +11,7 @@ Supported database size: > 10 Million Rows.
       Query Performance: under a minute.
           Hardware Used: x86 architecture. (Tested on AMD 2nd Gen Epic Processor)
                Security: >= 128 bits of quantum and classical security.
-            Integration: Just a plug in to postgress.
+            Integration: Just a plug in to postgres.
          Encrypted data: Database/tables need no changes at all.
 
 
