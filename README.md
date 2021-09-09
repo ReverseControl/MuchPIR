@@ -70,8 +70,8 @@ docker exec -u 0 -ti <container-name> bash
 By default you will enter in the right directory to run: 
 
 ```
-cd /data/
 su - postgres
+cd /data/
 psql -U postgres -d testdb -f ./load_data.sql
 exit
 ```
@@ -97,8 +97,8 @@ Postgres extensions are installed per database. Now that we have installed our e
 may use it.
 
 ```
-cd /data/
 su - postgres
+cd /data/
 psql -U postgres -d testdb -f /git/MuchPIR/pir_select--1.0.sql
 exit
 ```
@@ -115,27 +115,29 @@ time ./a.out
 You should get an output like this:
 
 ```
-root@565c02be961c:/git/MuchPIR/client# g++  -std=c++17 -march=native -I/usr/local/include/SEAL-3.5/ -L/usr/local/lib/ client_module.cpp -lpqxx -lpq -l:libseal.so.3.5
-root@565c02be961c:/git/MuchPIR/client# time ./a.out 
-Plain Modulus: 40961
+root@24a82b6e3437:/git/MuchPIR/client# g++  -std=c++17 -march=native -I/usr/local/include/SEAL-3.5/ -L/usr/local/lib/ client_module.cpp -lpqxx -lpq -l:libseal.so.3.5
+root@24a82b6e3437:/git/MuchPIR/client# time ./a.out
+Note: compression is disabled. This is the maximum size for each object at this database size under current parameters.
 
-   db_size: 1024 <-- Note: By default 1024 in this demo. Can be increased up to 10s of millions: requires math and code, i.e the latest version. 
- row_index: 0 <-- Note: You can change this to any row you want in code.
- hcube_dim: 1 <-- Note: Hypercube dimension. This demo supports only 1 dimension. Limits DB_size to 4096 rows.
-hecube_len: 1024 <-- Note: An optimization. Does not affect this demo. Improves performance for high dimensional hyper cubes.
+       Plain Modulus: 40961
 
-Polynomial Degree(N):4096
-Parameters size: 129
-query size in bytes: 131177
+             db_size: 1024 <-- Note: By default 1024 in this demo. Can be increased up to 10s of millions: requires math and code, i.e the latest version. 
+           row_index: 0 <-- Note: You can change this to any row you want in code.
+           hcube_dim: 1 <-- Note: Hypercube dimension. This demo supports only 1 dimension. Limits DB_size to 4096 rows.
+          hecube_len: 1024 <-- Note: An optimization. Does not affect this demo. Improves performance for high dimensional hyper cubes.
 
-  Result Size: 182434 bytes.
-  Query  Size: 1790427bytes.
+    Polynomial Degree(N): 4096
+         Parameters size: 129 bytes.
+        Galois Keys size: 1659085 bytes.
+Hypercube embedding size: 131177 bytes.
+             Query  Size: 1790391 bytes.
+             Result Size: 182362 bytes.
 Query result (Polynomial): 46x^11 + 72x^10 + 65x^9 + 64x^8 + 20x^7 + 41x^6 + 73x^5 + 74x^4 + 61x^3 + 69x^2 + 72x^1 + 65
 Query result (ASCII)     : Fred Astaire
 
-real	0m58.264s
-user	0m0.230s
-sys	0m0.009s
+real	0m53.250s
+user	0m0.216s
+sys	0m0.017s
 ```
 
 
