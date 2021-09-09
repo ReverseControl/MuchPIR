@@ -19,7 +19,7 @@ Private Information Retrieval refers to the ability to query a database without 
 
 The current implementation, even the optimized version, works when the database data itself is not encrypted. If the database data itself were to be encrypted, in addition to the queries, then the entities that will care are:
 
-1. Banks: customer data can be encrypted, stored in cloud services, and queried as needed for the banks daily operations. As the data itself is encrypted it matters not whether the cloud service is hacked, not trusted, or that there the hardware is running on has bugs (meltdown/specter, etc). And because the data can be operated on under encryption, the bank may do its business as usual, or at least offload a significant part of it to the cloud with security guarantees.
+1. Banks: customer data can be encrypted, stored in cloud services, and queried as needed for the banks daily operations. As the data itself is encrypted it matters not whether the cloud service is hacked, not trusted, or that the hardware is running on has bugs (meltdown/specter, etc). And because the data can be operated on under encryption, the bank may do its business as usual, or at least offload a significant part of it to the cloud with security guarantees.
 
 2. Hospitals: Same as banks. Offload data to the cloud encrypted and perform computations under encryption. Only the entity holding the private keys, that is the hospitals/banks, can decrypt that data and queried results on that data.
 
