@@ -319,15 +319,18 @@ int main(int narg, char *argv[])
     get_hcube_param( &hcube_dim, &hcube_len, poly_modulus_degree, DB_SIZE);
     
     //Serialize objects.
+    std::cout << "Note: compression is disabled. This is the maximum size for each object at this database size under current parameters." << endl;
     std::stringstream buffer;
     params.save( buffer, compr_mode_type::none );
     uint64_t prm = buffer.str().size() ;
-    cout << "Parameters size: " << prm << endl;
+    cout << "         Parameters size: " << prm << " bytes." << endl;
     GalKeys.save( buffer );
     uint64_t lk = buffer.str().size();
+    cout << "        Galois Keys size: " << lk - prm << "bytes." << endl;
     he_query[0][0].save( buffer, compr_mode_type::none );
-    cout << "query size in bytes: " << buffer.str().size() - lk  << endl;
+    cout << "Hypercube embedding size: " << buffer.str().size() - lk  << " bytes." endl;
     string str_buffer = buffer.str();
+    cout << " ->  Query  Size: " << str_buffer.size() << "bytes." << endl;
     
     //Place into format libpqxx can read as bytea for postgres
     std::basic_string< std::byte >  query_buffer;
@@ -349,8 +352,7 @@ int main(int narg, char *argv[])
     //Execute query
     pqxx::result r = w.exec_prepared("pir_1",  query_buffer );
       for (auto row: r){
-        cout << "\n  Result Size: " << row[ "pir_select" ].size() << " bytes." << endl;
-        cout << "  Query  Size: " << query_buffer.size() << "bytes." << endl;
+        cout << " ->  Result Size: " << row[ "pir_select" ].size() << " bytes." << endl;
 
         //Interpret results as raw bytes
         auto data = row[ "pir_select" ].as<std::basic_string<std::byte>>();
