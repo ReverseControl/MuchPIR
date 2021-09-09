@@ -3,17 +3,19 @@
 Contact us: postgres-pir@pm.me 
 
 
-What is PIR? Private Information Retrieval refers to the ability to query a database without disclosing which item is looked up or whether that item exists at all on the database. Not only is the query kept confidential, but so is the result of the query. In particular, any observer, including the platform running the query and hosting the databse itself, cannot tell whether the data returned contains the result to our query or not, or which item was being looked up. 
+**What is PIR?** 
+
+Private Information Retrieval refers to the ability to query a database without disclosing which item is looked up or whether that item exists at all on the database. Not only is the query kept confidential, but so is the result of the query. In particular, any observer, including the platform running the query and hosting the databse itself, cannot tell whether the data returned contains the result to our query or not, or which item was being looked up. 
 
 
-Who will care?
+**Who will care?**
 
 
 1. Law Enforcement: you want to look up data on bad guy A without disclosing to the company holding the data, or any third party holding or processing the query, that you are looking for data about A.
 2. Stock Exchange: aggregate data on symbol look up can disclose market interest in advance of price movement. A PIR based symbol look up would not diclose to any third parties, or the Stock Exchange itself, handling the symbol price, volume, short/long interest, etc queries any market interest in advance of price movement.
 
 
-Who else will care?
+**Who else will care?**
 
 The current implementation, even the optimized version, works when the database data itself is not encrypted. If the database data itself were to be encrypted, in addition to the queries, then the entities that will care are:
 
@@ -21,7 +23,7 @@ The current implementation, even the optimized version, works when the database 
 
 2. Hospitals: Same as banks. Offload data to the cloud encrypted and perform computations under encryption. Only the entity holding the private keys, that is the hospitals/banks, can decrypt that data and queried results on that data.
 
-Private Information Retrieval using Homomorphic Encryption implemented as a C/C++ Aggregate extension to Postgres. This demo is good a enough implementation for folks who want to experiment with PIR on Postgres and have a working C/C++ extension.
+**MuchPIR is Private Information Retrieval using Homomorphic Encryption implemented as a C/C++ Aggregate extension to Postgres**. This demo is good a enough implementation for folks who want to experiment with PIR on Postgres and have a working C/C++ extension.
 
 The latest version of the software this demo is based on has the following characteristics:
 
