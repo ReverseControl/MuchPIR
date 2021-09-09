@@ -328,7 +328,7 @@ int main(int narg, char *argv[])
     uint64_t lk = buffer.str().size();
     cout << "        Galois Keys size: " << lk - prm << "bytes." << endl;
     he_query[0][0].save( buffer, compr_mode_type::none );
-    cout << "Hypercube embedding size: " << buffer.str().size() - lk  << " bytes." endl;
+    cout << "Hypercube embedding size: " << buffer.str().size() - lk  << " bytes." << endl;
     string str_buffer = buffer.str();
     cout << " ->  Query  Size: " << str_buffer.size() << "bytes." << endl;
     
