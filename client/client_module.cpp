@@ -211,10 +211,10 @@ vector< vector<Ciphertext> >  generate_query( uint64_t row_index, const uint64_t
     Plaintext pt( poly_mod_degree );
     vector< vector<Ciphertext> >  result( hcube_dim );
 
-    cout << "\n\n" << "       db_size: " << db_size <<   " <-- Note: By default 1024 in this demo. Can be increased up to 10s of millions: requires math and code, i.e the latest version. "  << endl   
-                   << "     row_index: " << row_index << " <-- Note: You can change this to any row you want in code." << endl 
-                   << "     hcube_dim: " << hcube_dim << " <-- Note: Hypercube dimension. This demo supports only 1 dimension. Limits DB_size to 4096 rows." << endl 
-                   << "    hecube_len: " << hcube_len << " <-- Note: An optimization. Does not affect this demo. Improves performance for high dimensional hyper cubes." << "\n\n";
+    cout << "\n\n" << "             db_size: " << db_size <<   " <-- Note: By default 1024 in this demo. Can be increased up to 10s of millions: requires math and code, i.e the latest version. "  << endl   
+                   << "           row_index: " << row_index << " <-- Note: You can change this to any row you want in code." << endl 
+                   << "           hcube_dim: " << hcube_dim << " <-- Note: Hypercube dimension. This demo supports only 1 dimension. Limits DB_size to 4096 rows." << endl 
+                   << "          hecube_len: " << hcube_len << " <-- Note: An optimization. Does not affect this demo. Improves performance for high dimensional hyper cubes." << "\n\n";
 
     cout <<           "    Polynomial Degree(N): " << poly_mod_degree << endl; ;
     
@@ -294,7 +294,7 @@ int main(int narg, char *argv[])
     Evaluator evaluator(context);
     std::cout << "Note: compression is disabled. This is the maximum size for each object at this database size under current parameters." << endl;
 
-    cout << "\nPlain Modulus: " << 40961 ;
+    cout << "\n      Plain Modulus: " << 40961 ;
 
     //Create public/private keys
     KeyGenerator keygen(context);
@@ -331,7 +331,7 @@ int main(int narg, char *argv[])
     he_query[0][0].save( buffer, compr_mode_type::none );
     cout << "Hypercube embedding size: " << buffer.str().size() - lk  << " bytes." << endl;
     string str_buffer = buffer.str();
-    cout << " ->  Query  Size: " << str_buffer.size() << " bytes." << endl;
+    cout <<     "             Query  Size: " << str_buffer.size() << " bytes." << endl;
     
     //Place into format libpqxx can read as bytea for postgres
     std::basic_string< std::byte >  query_buffer;
@@ -353,7 +353,7 @@ int main(int narg, char *argv[])
     //Execute query
     pqxx::result r = w.exec_prepared("pir_1",  query_buffer );
       for (auto row: r){
-        cout << " ->  Result Size: " << row[ "pir_select" ].size() << " bytes." << endl;
+        cout << "             Result Size: " << row[ "pir_select" ].size() << " bytes." << endl;
 
         //Interpret results as raw bytes
         auto data = row[ "pir_select" ].as<std::basic_string<std::byte>>();
