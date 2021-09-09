@@ -294,7 +294,7 @@ int main(int narg, char *argv[])
     Evaluator evaluator(context);
     std::cout << "Note: compression is disabled. This is the maximum size for each object at this database size under current parameters." << endl;
 
-    cout << "\n      Plain Modulus: " << 40961 ;
+    cout << "\n       Plain Modulus: " << 40961 ;
 
     //Create public/private keys
     KeyGenerator keygen(context);
