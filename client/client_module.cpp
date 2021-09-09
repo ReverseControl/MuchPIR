@@ -211,12 +211,12 @@ vector< vector<Ciphertext> >  generate_query( uint64_t row_index, const uint64_t
     Plaintext pt( poly_mod_degree );
     vector< vector<Ciphertext> >  result( hcube_dim );
 
-    cout << "\n\n" << "   db_size: " << db_size <<   " <-- Note: By default 1024 in this demo. Can be increased up to 10s of millions: requires math and code, i.e the latest version. "  << endl   
-                   << " row_index: " << row_index << " <-- Note: You can change this to any row you want in code." << endl 
-                   << " hcube_dim: " << hcube_dim << " <-- Note: Hypercube dimension. This demo supports only 1 dimension. Limits DB_size to 4096 rows." << endl 
-                   << "hecube_len: " << hcube_len << " <-- Note: An optimization. Does not affect this demo. Improves performance for high dimensional hyper cubes." << "\n\n";
+    cout << "\n\n" << "       db_size: " << db_size <<   " <-- Note: By default 1024 in this demo. Can be increased up to 10s of millions: requires math and code, i.e the latest version. "  << endl   
+                   << "     row_index: " << row_index << " <-- Note: You can change this to any row you want in code." << endl 
+                   << "     hcube_dim: " << hcube_dim << " <-- Note: Hypercube dimension. This demo supports only 1 dimension. Limits DB_size to 4096 rows." << endl 
+                   << "    hecube_len: " << hcube_len << " <-- Note: An optimization. Does not affect this demo. Improves performance for high dimensional hyper cubes." << "\n\n";
 
-    cout << "Polynomial Degree(N):" << poly_mod_degree << endl; ;
+    cout <<           "    Polynomial Degree(N): " << poly_mod_degree << endl; ;
     
     for ( ;  hcube_dim > 0 ;  ) {
 
@@ -292,6 +292,7 @@ int main(int narg, char *argv[])
     params.set_plain_modulus( 40961 );
     auto context = SEALContext::Create(params);
     Evaluator evaluator(context);
+    std::cout << "Note: compression is disabled. This is the maximum size for each object at this database size under current parameters." << endl;
 
     cout << "\nPlain Modulus: " << 40961 ;
 
@@ -319,18 +320,18 @@ int main(int narg, char *argv[])
     get_hcube_param( &hcube_dim, &hcube_len, poly_modulus_degree, DB_SIZE);
     
     //Serialize objects.
-    std::cout << "Note: compression is disabled. This is the maximum size for each object at this database size under current parameters." << endl;
+
     std::stringstream buffer;
     params.save( buffer, compr_mode_type::none );
     uint64_t prm = buffer.str().size() ;
     cout << "         Parameters size: " << prm << " bytes." << endl;
     GalKeys.save( buffer );
     uint64_t lk = buffer.str().size();
-    cout << "        Galois Keys size: " << lk - prm << "bytes." << endl;
+    cout << "        Galois Keys size: " << lk - prm << " bytes." << endl;
     he_query[0][0].save( buffer, compr_mode_type::none );
     cout << "Hypercube embedding size: " << buffer.str().size() - lk  << " bytes." << endl;
     string str_buffer = buffer.str();
-    cout << " ->  Query  Size: " << str_buffer.size() << "bytes." << endl;
+    cout << " ->  Query  Size: " << str_buffer.size() << " bytes." << endl;
     
     //Place into format libpqxx can read as bytea for postgres
     std::basic_string< std::byte >  query_buffer;
