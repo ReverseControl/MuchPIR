@@ -14,14 +14,8 @@ Private Information Retrieval refers to the ability to query a database without 
 1. Law Enforcement: you want to look up data on bad guy A without disclosing to the company holding the data, or any third party holding or processing the query, that you are looking for data about A.
 2. Stock Exchange: aggregate data on symbol look up can disclose market interest in advance of price movement. A PIR based symbol look up would not diclose to any third parties, or the Stock Exchange itself, handling the symbol price, volume, short/long interest, etc queries any market interest in advance of price movement.
 
+Applications that require long term confidentiality guarantees may be interested in using PIR. These types of applications might need additional layers of security for a robust, secure implementation with confidentiality guarantees over long periods of time.
 
-**Who else will care?**
-
-The current implementation, even the optimized version, works when the database data itself is not encrypted. If the database data itself were to be encrypted, in addition to the queries, then the entities that will care are:
-
-1. Banks: customer data can be encrypted, stored in cloud services, and queried as needed for the banks daily operations. As the data itself is encrypted it matters not whether the cloud service is hacked, not trusted, or that the hardware is running on has bugs (meltdown/specter, etc). And because the data can be operated on under encryption, the bank may do its business as usual, or at least offload a significant part of it to the cloud with security guarantees.
-
-2. Hospitals: Same as banks. Offload data to the cloud encrypted and perform computations under encryption. Only the entity holding the private keys, that is the hospitals/banks, can decrypt that data and queried results on that data.
 
 **MuchPIR is Private Information Retrieval using Homomorphic Encryption implemented as a C/C++ Aggregate extension to Postgres**. This demo is good a enough implementation for folks who want to experiment with PIR on Postgres and have a working C/C++ extension.
 
