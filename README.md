@@ -37,6 +37,18 @@ Highly optimized parallelized PIR query.
 
 This demo targets string types on postgres, but can easily be adapted to query any type: int4, int8, float, bytea, etc.
 
+# Differential Privacy Use Cases
+
+There are three other uses of this technology beyond PIR that we have developed concepts for:
+
+1. **Limited String Search:** small words, such as a name or last name, could be searched for instead of indexing into a particular row.
+2. **Exact Match Search:** within limits this could be done as well. Preferably, the search space would smaller than database size.
+3. **Unique ID Search:** where data could be searched based on unique ID. This would works well on columns with unique data.
+4. **Accumulation:** Aggregating data by addition on a given column in a way that is indistinguishable from PIR is also possible. (Same performance, same everything.)
+
+The team is still developing  other use cases. Feel free to contact us if there is a use case of interest to you, your team or organization.
+
+
 # Building
 
 This code has been run and tested on Ubuntu 18.04 and Ubuntu 20.04. It does require:
