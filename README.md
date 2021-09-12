@@ -24,12 +24,12 @@ The latest version of the software this demo is based on has the following chara
 ```
      Supported table size: > 10 Million Rows.
 Query Compute Performance: under a minute.
-       Network Query Size:  From about 2 MB to less than 10 MB. (Depending on configuration.)
+       Network Query Size:  From about 1 MB to less than 10 MB. (Depending on configuration.)
         Query Result Size:  < 512 KB.
             Hardware Used: x86 architecture. (Tested on AMD 2nd Gen Epic Processor)
                  Security: >= 128 bits of quantum and classical security.
               Integration: Just a plug in to postgres.
-           Encrypted data: Database/tables need no changes at all.
+           Encrypted data: Database/tables/schemas need no changes at all.
        Cryptographic Keys: Every single query has a new private/public key pair.
 
 Highly optimized parallelized PIR query.
