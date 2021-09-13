@@ -1,7 +1,6 @@
-# MuchPIR
+# MuchPIR Demo
 
-Contact us: postgres-pir@pm.me 
-
+Contact The MuchPIR Team: muchpir@pm.me 
 
 **What is PIR?** 
 
@@ -10,14 +9,21 @@ Private Information Retrieval refers to the ability to query a database without 
 
 **Who will care?**
 
+1. **Law Enforcement**: you want to look up data on bad guy A without disclosing to the company holding the data, or any third party holding or processing the query, that you are looking for data about A.
+2. **Stock Exchange**: aggregate data on symbol look up can disclose market interest in advance of price movement. A PIR based symbol look up would not disclose to any third parties, or the Stock Exchange itself, handling the symbol price, volume, short/long interest, etc queries any market interest in advance of price movement.
 
-1. Law Enforcement: you want to look up data on bad guy A without disclosing to the company holding the data, or any third party holding or processing the query, that you are looking for data about A.
-2. Stock Exchange: aggregate data on symbol look up can disclose market interest in advance of price movement. A PIR based symbol look up would not diclose to any third parties, or the Stock Exchange itself, handling the symbol price, volume, short/long interest, etc queries any market interest in advance of price movement.
+**Who else will care?**
 
-Applications that require long term confidentiality guarantees may be interested in using PIR. These types of applications might need additional layers of security for a robust, secure implementation with confidentiality guarantees over long periods of time.
+Applications that require long term confidentiality guarantees may be interested in using PIR. These types of applications might need additional layers of security for a robust, secure implementation with confidentiality guarantees over long periods of time. The current implementation, even the optimized version, works when the database data itself is not encrypted. If the database data itself were to be encrypted, in addition to the queries, then the entities that will care are:
 
+3. **Banks**: customer data can be encrypted, stored in cloud services, and queried as needed for the banks daily operations. As the data itself is encrypted it matters not whether the cloud service is hacked, not trusted, or that the hardware it is running on has bugs (meltdown/specter, etc). And because the data can be operated on under encryption, the bank may do its business as usual, or at least offload a significant part of it to the cloud with security guarantees.
+
+4.  **Hospitals**: Same as banks. Offload data to the cloud encrypted and perform computations under encryption. Only the entity holding the private keys, that is the hospitals/banks, can decrypt that data and queried results on that data.
+ 
 
 **MuchPIR is Private Information Retrieval using Homomorphic Encryption implemented as a C/C++ Aggregate extension to Postgres**. This demo is good a enough implementation for folks who want to experiment with PIR on Postgres and have a working C/C++ extension.
+
+# MuchPIR Commercial
 
 The latest version of the software this demo is based on has the following characteristics:
 
@@ -37,6 +43,7 @@ Highly optimized parallelized PIR query.
 
 This demo targets string types on postgres, but can easily be adapted to query any type: int4, int8, float, bytea, etc.
 
+
 # Differential Privacy Use Cases
 
 There are three other uses of this technology beyond PIR that we have developed concepts for:
@@ -51,7 +58,7 @@ The team is still developing  other use cases. Feel free to contact us if there 
 
 # Building
 
-This code has been run and tested on Ubuntu 18.04 and Ubuntu 20.04. It does require:
+This code has been ran and tested on Ubuntu 18.04 and Ubuntu 20.04. It does require:
 
 1. Microsoft SEAL Library Version 3.5.8: https://github.com/microsoft/SEAL/tree/v3.5.8
 2. Postgres C++ wrapper libpqxx: https://github.com/jtv/libpqxx
