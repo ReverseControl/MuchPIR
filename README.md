@@ -12,7 +12,7 @@ Private Information Retrieval refers to the ability to query a database without 
 1. **Law Enforcement**: you want to look up data on bad guy A without disclosing to the company holding the data, or any third party holding or processing the query, that you are looking for data about A.
 2. **Stock Exchange**: aggregate data on symbol look up can disclose market interest in advance of price movement. A PIR based symbol look up would not disclose to any third parties, or the Stock Exchange itself, handling the symbol price, volume, short/long interest, etc queries any market interest in advance of price movement.
 
--**Who else will care?**
+**Who else will care?**
 
 Applications that require long term confidentiality guarantees may be interested in using PIR. These types of applications might need additional layers of security for a robust, secure implementation with confidentiality guarantees over long periods of time. The current implementation, even the optimized version, works when the database data itself is not encrypted. If the database data itself were to be encrypted, in addition to the queries, then the entities that will care are:
 
