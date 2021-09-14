@@ -41,6 +41,11 @@ Query Compute Performance: under a minute.
 Highly optimized parallelized PIR query.
 ```
 
+The MuchPIR Team would like to point out that these parameters and performance listed are meant to encompass a wide range of use cases. If your demand for this level of privacy is for a significantly smaller databases, or requires less data bandwidth, then performance goes up and bandwidth goes down on query/response sizes. Similarly, if your databases are much larger or your bandwidth needs much bigger.
+
+We may also speak of implementations where bandwidth and performance tradeoffs are parametrizable by the user making the query as part of the query itself. These would be implemented on a case by case basis to fit the need of your organization.
+
+
 This demo targets string types on postgres, but can easily be adapted to query any type: int4, int8, float, bytea, etc.
 
 
