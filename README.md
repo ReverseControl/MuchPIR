@@ -2,6 +2,8 @@
 
 Contact The MuchPIR Team: muchpir@pm.me 
 
+Author: Escanor Liones (Single Author)
+
 **What is PIR?** 
 
 Private Information Retrieval refers to the ability to query a database without disclosing which item is looked up or whether that item exists at all on the database. Not only is the query kept confidential, but so is the result of the query. In particular, any observer, including the platform running the query and hosting the databse itself, cannot tell whether the data returned contains the result to our query or not, or which item was being looked up. 
